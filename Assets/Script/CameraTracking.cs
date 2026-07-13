@@ -10,7 +10,6 @@ public class CameraTracking : MonoBehaviour
     public float snapspeedLowBound = 4.0f;
     private Rigidbody2D rb;
     public bool snap = false;
-
     private void Start()
     {
         rb = player.gameObject.GetComponent<Rigidbody2D>();

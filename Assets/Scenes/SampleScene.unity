@@ -174,8 +174,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 1.3392829, y: 0}
-  m_Size: {x: 3.9786239, y: 4.5625176}
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1.3, y: 6.45}
   m_Direction: 0
 --- !u!50 &29791344
 Rigidbody2D:
@@ -193,7 +193,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 19b285ed4876971429312a79400983b3, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -271,7 +271,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 29791342}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0.710738, w: 0.7034568}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 4.07, y: 0.38496, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -279,7 +279,7 @@ Transform:
   - {fileID: 189422250}
   - {fileID: 965725680}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90.59}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!114 &29791347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,14 +292,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afa41ce49faaf6d48a707e7f2bcb96a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
+  vertical: 0
+  left: 0
+  grounded: 0
   jump: 0
   jumpLF: 0
   heldtime: 0
-  holdThresh: 0.4
+  holdThresh: 0.2
   flatSize: {x: 1.3, y: 6.45}
   ScrunchSize: {x: 3.978624, y: 4.562518}
   flatOffset: {x: 0, y: 0}
-  ScrunchOffset: {x: 1.339283, y: 0}
+  ScrunchOffset: {x: 0, y: 0}
+  maxHold: 4
+  shunt: 12
+  jumpForce: {x: 14, y: 18}
+  jumpForceLeft: {x: -14, y: 18}
+  rotationForce: 210
+  rotationForceLeft: -210
 --- !u!114 &29791348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -584,7 +593,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8.98
+  orthographic size: 27.49
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -630,7 +639,7 @@ MonoBehaviour:
   player: {fileID: 29791346}
   smoothSpeed: 0.125
   offset: {x: 0, y: 0, z: -10}
-  snapspeed: 15
+  snapspeed: 8
   snapspeedLowBound: 4
   snap: 0
 --- !u!1 &564691037
@@ -719,8 +728,8 @@ Transform:
   m_GameObject: {fileID: 564691037}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.0005, y: -17.6401, z: 0}
-  m_LocalScale: {x: 111.46291, y: 19.859566, z: 1}
+  m_LocalPosition: {x: 13.6, y: -17.6401, z: 0}
+  m_LocalScale: {x: 341.18182, y: 19.859566, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
