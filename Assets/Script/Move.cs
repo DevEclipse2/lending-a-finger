@@ -1,5 +1,7 @@
+using System.Xml;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class Move : MonoBehaviour
 {
@@ -16,13 +18,13 @@ public class Move : MonoBehaviour
     Rigidbody2D rigidbody;
     CapsuleCollider2D collider;
     [SerializeField]
-    Vector2 flatSize;
+    public Vector2 flatSize;
     [SerializeField]
-    Vector2 ScrunchSize;
+    public Vector2 ScrunchSize;
     [SerializeField]
-    Vector2 flatOffset;
+    public Vector2 flatOffset;
     [SerializeField]
-    Vector2 ScrunchOffset;
+    public Vector2 ScrunchOffset;
 
     [SerializeField]
     float maxHold = 3.0f;
@@ -30,19 +32,48 @@ public class Move : MonoBehaviour
     float shunt = 13.0f;
 
     [SerializeField]
-    Vector2 jumpForce;
-    [SerializeField]
-    Vector2 jumpForceLeft;
+    float jumpForce;
     [SerializeField]
     float rotationForce;
-    [SerializeField]
-    float rotationForceLeft;
+
+    public float multiplier = 2.1f;
+    public bool scrunch = false;
+    bool increaseAngular = false;
+
+
+    public GameObject bar;
+    Vector2 size;
+    public Image barImage;
+    public float overheatThreshold = 4.0f;
+
+
+
+    public float drainSpeed = 3.0f;
+
+    public Color normalColor = Color.green;
+    public Color maxColor = new Color(1f, 0.5f, 0f); // Orange
+    public Color overheatColor = Color.red;
+
+    public Color targetColor;
+    public Color currentColor;
+    private float currentCharge = 0f;
+    private bool isOverheated = false;
+    private ChargeState currentState = ChargeState.Idle;
+
+    public enum ChargeState { Idle, Growing, Holding, Receding }
+
+   
+    public float colorBlendSpeed = 10f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rigidbody = GetComponent<Rigidbody2D>();
         collider = GetComponent<CapsuleCollider2D>();
+        size = bar.transform.localScale;
+        targetColor = normalColor;
+        currentColor = normalColor;
+        if (barImage != null) barImage.color = currentColor;
     }
     public void onJump(InputAction.CallbackContext context)
     {
@@ -57,105 +88,155 @@ public class Move : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void UpdateBar(bool didjump)
     {
-        grounded = true;
-        Debug.Log("grounded");
-    }
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        grounded = false;
-        Debug.Log("not grounded");
+        switch (currentState)
+        {
+            case ChargeState.Idle:
+                targetColor = normalColor;
 
-    }
+                break;
 
+            case ChargeState.Growing:
+
+                targetColor = Color.Lerp(normalColor, maxColor, currentCharge);
+                if (didjump)
+                {
+                    currentState = ChargeState.Receding;
+                }
+                // Did we reach the top
+                else if (currentCharge >= maxHold)
+                {
+                    currentCharge = maxHold;
+                    currentState = ChargeState.Holding;
+                }
+                break;
+
+            case ChargeState.Holding:
+                targetColor = maxColor; // Lock target to Orange
+
+                if (heldtime >= overheatThreshold)
+                {
+                    currentState = ChargeState.Receding;
+                }
+                else if (didjump)
+                {
+                    currentState = ChargeState.Receding;
+                }
+                break;
+
+            case ChargeState.Receding:
+                // Drain based on duration
+                currentCharge -= Time.deltaTime * drainSpeed;
+                targetColor = overheatColor;
+                if (currentCharge <= 0f)
+                {
+                    currentCharge = 0f;
+                    currentState = ChargeState.Idle;
+                }
+                break;
+        }
+    }
 
     // Update is called once per frame
     void Update()
     {
         if (heldtime > holdThresh)
         {
-            Debug.Log("hold");
+            
+            scrunch = true;
+            if (grounded)
+            {
+                rigidbody.angularVelocity = 0;
+            }
+        }
+        if (scrunch)
+        {
             collider.size = ScrunchSize;
             collider.offset = ScrunchOffset;
+            if (!grounded && !increaseAngular) {
+                rigidbody.angularVelocity *= multiplier;
+                increaseAngular = true;
+
+            }
+        }
+        else
+        {
+            collider.offset = flatOffset;
+            collider.size = flatSize;
+            if (!grounded && increaseAngular)
+            {
+                rigidbody.angularVelocity /= multiplier;
+                increaseAngular = false;
+
+            }
         }
         if (jump)
         {
             if (!jumpLF)
             {
+                currentState = ChargeState.Growing;
                 jumpLF = true;
+                isOverheated = false;
             }
+
             heldtime += Time.deltaTime;
+            if (!isOverheated)
+            {
+                currentCharge = heldtime;
+            }
+            else
+            {
+                
+            }
+            if(currentCharge > overheatThreshold)
+            {
+                isOverheated = true;
+            }
+            if (barImage != null)
+            {
+                bar.transform.localScale = new Vector2(size.x, size.y * currentCharge / maxHold);
+                UpdateBar(false);
+            }
         }
         else
         {
             if (jumpLF)
             {
+                UpdateBar(true);
                 jumpLF = false;
                 //do heldtime threshes here
                 //maybe o.2 seconds is a tap
                 //etc etc 
+                scrunch = false;
+
                 if (heldtime < holdThresh)
                 {
                     Debug.Log("tap");
                     if (grounded)
                     {
-                        vertical = transform.rotation == Quaternion.Euler(new Vector3(0, 0, 0));
-                        if (!vertical)
-                        {
-                            vertical = true;
-                            transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
-                            rigidbody.linearVelocity = Vector2.zero;
-                            rigidbody.angularVelocity = 0;
-                        }
-                        else
-                        {
-                            //vertical is already true 
-                            left = !left;
-                        }
-                        
+                        rigidbody.linearVelocity = Vector2.zero;
+                        rigidbody.angularVelocity += 30.0f;
+                        transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z + 20));
                     }
                 }
                 else
                 {
                     if (grounded)
                     {
-                        if (!vertical)
-                        {
-                            if (left)
-                            {
-                                rigidbody.AddForce(new Vector2(-shunt, 0), ForceMode2D.Impulse);
-                            }
-                            else
-                            {
-                                rigidbody.AddForce(new Vector2(shunt, 0), ForceMode2D.Impulse);
-                            }
-
-                        }
-                        else
-                        {
-                            vertical = false;
-
-                            if (left)
-                            {
-                                rigidbody.AddForce(jumpForceLeft * Mathf.Clamp( heldtime, 0.0f, maxHold), ForceMode2D.Impulse);
-                                rigidbody.angularVelocity = rotationForceLeft * Mathf.Clamp(heldtime, 0.0f, maxHold);
-                            }
-                            else
-                            {
-                                rigidbody.AddForce(jumpForce * Mathf.Clamp(heldtime, 0.0f, maxHold), ForceMode2D.Impulse);
-                                rigidbody.angularVelocity = rotationForce * Mathf.Clamp(heldtime, 0.0f, maxHold);
-                            }
-                            
-                        }
+                        Debug.Log("Jump");
+                        rigidbody.AddForce(transform.up * jumpForce * Mathf.Clamp(currentCharge + 0.4f, 0.0f, maxHold), ForceMode2D.Impulse);
+                        rigidbody.angularVelocity = rotationForce * Mathf.Clamp(currentCharge, 0.0f, maxHold);
 
                     }
                     Debug.Log("release");
-                    
+
                 }
-                collider.offset = flatOffset;
-                collider.size = flatSize;
+                
                 heldtime = 0.0f;
+                currentCharge = 0.0f;
+                bar.transform.localScale = new Vector2(size.x, size.y * currentCharge / maxHold);
+
             }
         }
     }
