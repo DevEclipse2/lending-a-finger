@@ -6,6 +6,11 @@ public class GroundCheck : MonoBehaviour
     GameObject player;
     Move move;
     CapsuleCollider2D collider;
+    [SerializeField]
+    Rigidbody2D rb;
+    [SerializeField]
+    ParticleSystem splatter;
+    private ParticleSystem.EmissionModule speedEmissionModule;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,6 +24,17 @@ public class GroundCheck : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             move.grounded = true;
+            float currentSpeed = rb.linearVelocity.magnitude;
+
+            // 2. Calculate what percentage of our "max speed" we are currently traveling at
+            float speedPercentage = Mathf.Clamp01(currentSpeed / 18);
+            int particleCount = Mathf.RoundToInt(30 * speedPercentage);
+
+            // Tell the particle system to instantly spit out that exact number
+            if (particleCount > 0)
+            {
+                splatter.Emit(particleCount);
+            }
         }
     }
     private void OnTriggerExit2D(Collider2D collision)

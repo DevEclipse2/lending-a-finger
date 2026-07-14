@@ -14,6 +14,12 @@ public class Move : MonoBehaviour
     public float heldtime = 0.0f;
 
     [SerializeField]
+    Transform Tip;
+    [SerializeField]
+    Transform Tail;
+
+
+    [SerializeField]
     private float holdThresh = 0.15f;
 
     Rigidbody2D rigidbody;
@@ -61,6 +67,10 @@ public class Move : MonoBehaviour
     private bool isOverheated = false;
     private ChargeState currentState = ChargeState.Idle;
 
+    
+    [SerializeField]
+    ParticleSystem trail;
+    private ParticleSystem.EmissionModule speedEmissionModule;
     public enum ChargeState { Idle, Growing, Holding, Receding }
 
    
@@ -74,6 +84,7 @@ public class Move : MonoBehaviour
         size = bar.transform.localScale;
         targetColor = normalColor;
         currentColor = normalColor;
+        speedEmissionModule = trail.emission;
         if (barImage != null) barImage.color = currentColor;
     }
     public void onJump(InputAction.CallbackContext context)
@@ -100,7 +111,7 @@ public class Move : MonoBehaviour
 
             case ChargeState.Growing:
 
-                barImage.color = Color.Lerp(normalColor, maxColor, currentCharge);
+                barImage.color = Color.Lerp(normalColor, maxColor, currentCharge/maxHold);
                 if (didjump)
                 {
                     currentState = ChargeState.Receding;
@@ -115,6 +126,7 @@ public class Move : MonoBehaviour
 
             case ChargeState.Holding:
                 barImage.color = maxColor; // Lock target to Orange
+                barImage.color = Color.Lerp(maxColor, overheatColor, currentCharge - maxHold / 1);
 
                 if (heldtime >= overheatThreshold)
                 {
@@ -130,7 +142,7 @@ public class Move : MonoBehaviour
                 // Drain based on duration
                 if(grounded)
                 {
-                    currentCharge -= Time.deltaTime * drainSpeed;
+                currentCharge -= Time.deltaTime * drainSpeed;
                     barImage.color = overheatColor;
                     if (currentCharge <= 0f)
                     {
@@ -146,6 +158,13 @@ public class Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float currentSpeed = rigidbody.linearVelocity.magnitude;
+
+        // 2. Calculate what percentage of our "max speed" we are currently traveling at
+        float speedPercentage = Mathf.Clamp01(currentSpeed / 18);
+
+        // 3. Set the new emission rate based on that percentage
+        speedEmissionModule.rateOverTime = 18 * speedPercentage;
         bool didjump = false;
         if (heldtime > holdThresh)
         {
@@ -236,10 +255,19 @@ public class Move : MonoBehaviour
                 }
                 else
                 {
-                    c
+                    if (grounded)
+                    {
                         Debug.Log("Jump");
-                        rigidbody.AddForce(transform.up * jumpForce * Mathf.Clamp(currentCharge + 0.4f, 0.0f, maxHold), ForceMode2D.Impulse);
-                        rigidbody.angularVelocity = rotationForce * Mathf.Clamp(currentCharge, 0.0f, maxHold);
+                        if(Tip.position.y >= Tail.position.y)
+                        {
+                            rigidbody.AddForce( transform.up * jumpForce * Mathf.Clamp(currentCharge , 0.0f, maxHold), ForceMode2D.Impulse);
+                        }
+                        else
+                        {
+                            rigidbody.AddForce(-transform.up * jumpForce * Mathf.Clamp(currentCharge, 0.0f, maxHold), ForceMode2D.Impulse);
+                        }
+
+                            rigidbody.angularVelocity = rotationForce * Mathf.Clamp(currentCharge, 0.0f, maxHold);
                         didjump = true;
 
                     }
