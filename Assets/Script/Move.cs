@@ -1,4 +1,5 @@
 using System.Xml;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -99,7 +100,7 @@ public class Move : MonoBehaviour
 
             case ChargeState.Growing:
 
-                targetColor = Color.Lerp(normalColor, maxColor, currentCharge);
+                barImage.color = Color.Lerp(normalColor, maxColor, currentCharge);
                 if (didjump)
                 {
                     currentState = ChargeState.Receding;
@@ -113,7 +114,7 @@ public class Move : MonoBehaviour
                 break;
 
             case ChargeState.Holding:
-                targetColor = maxColor; // Lock target to Orange
+                barImage.color = maxColor; // Lock target to Orange
 
                 if (heldtime >= overheatThreshold)
                 {
@@ -127,13 +128,17 @@ public class Move : MonoBehaviour
 
             case ChargeState.Receding:
                 // Drain based on duration
-                currentCharge -= Time.deltaTime * drainSpeed;
-                targetColor = overheatColor;
-                if (currentCharge <= 0f)
+                if(grounded)
                 {
-                    currentCharge = 0f;
-                    currentState = ChargeState.Idle;
+                    currentCharge -= Time.deltaTime * drainSpeed;
+                    barImage.color = overheatColor;
+                    if (currentCharge <= 0f)
+                    {
+                        currentCharge = 0f;
+                        currentState = ChargeState.Idle;
+                    }
                 }
+                
                 break;
         }
     }
@@ -141,6 +146,7 @@ public class Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        bool didjump = false;
         if (heldtime > holdThresh)
         {
             
@@ -195,15 +201,13 @@ public class Move : MonoBehaviour
             }
             if (barImage != null)
             {
-                bar.transform.localScale = new Vector2(size.x, size.y * currentCharge / maxHold);
-                UpdateBar(false);
+                bar.transform.localScale = new Vector2(size.x, size.y * Mathf.Clamp( currentCharge, 0, maxHold) / maxHold);
             }
         }
         else
         {
             if (jumpLF)
             {
-                UpdateBar(true);
                 jumpLF = false;
                 //do heldtime threshes here
                 //maybe o.2 seconds is a tap
@@ -217,16 +221,26 @@ public class Move : MonoBehaviour
                     {
                         rigidbody.linearVelocity = Vector2.zero;
                         rigidbody.angularVelocity += 30.0f;
+                        RaycastHit2D ray = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), Vector2.left, 3.0f);
+                        //if(ray.collider.gameObject.CompareTag("Ground"))
+                        //{
+                        //    transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z + 20));
+                        //}
+                        //else
+                        //{
+                        //    transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z - 20));
+                        //}
                         transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z + 20));
+
                     }
                 }
                 else
                 {
-                    if (grounded)
-                    {
+                    c
                         Debug.Log("Jump");
                         rigidbody.AddForce(transform.up * jumpForce * Mathf.Clamp(currentCharge + 0.4f, 0.0f, maxHold), ForceMode2D.Impulse);
                         rigidbody.angularVelocity = rotationForce * Mathf.Clamp(currentCharge, 0.0f, maxHold);
+                        didjump = true;
 
                     }
                     Debug.Log("release");
@@ -239,5 +253,7 @@ public class Move : MonoBehaviour
 
             }
         }
+        UpdateBar(didjump);
+
     }
 }
