@@ -14,6 +14,7 @@ public class TitleScreen : MonoBehaviour
     bool cancel;
     bool jumpLF;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField]
     bool input = false;
     float heldTime;
     [SerializeField]
@@ -72,12 +73,12 @@ public class TitleScreen : MonoBehaviour
     //like my wife and kids
 
     // select your main key for this session
-    // . _ .. _ _ _ ..
+    // . _ .. _ 
 
 
     void Start()
     {
-        
+        size = bar.transform.localScale;
     }
     public void onJump(InputAction.CallbackContext context)
     {
@@ -114,18 +115,13 @@ public class TitleScreen : MonoBehaviour
         {
             case ChargeState.Idle:
                 targetColor = normalColor;
-
                 break;
 
             case ChargeState.Growing:
-
                 barImage.color = Color.Lerp(normalColor, maxColor, currentCharge / maxHold);
-                if (didjump)
-                {
-                    currentState = ChargeState.Receding;
-                }
+
                 // Did we reach the top
-                else if (currentCharge >= maxHold)
+                if (currentCharge >= maxHold)
                 {
                     currentCharge = maxHold;
                     currentState = ChargeState.Holding;
@@ -161,6 +157,7 @@ public class TitleScreen : MonoBehaviour
     void ContinueGame() { }
     void Update()
     {
+        
         if (heldTime > holdThresh)
         {
 
@@ -189,7 +186,7 @@ public class TitleScreen : MonoBehaviour
             }
             if (barImage != null)
             {
-                bar.transform.localScale = new Vector2(size.x, size.y * Mathf.Clamp(currentCharge, 0, maxHold) / maxHold);
+                bar.transform.localScale = new Vector2(size.x * Mathf.Clamp(currentCharge, 0, maxHold) / maxHold, size.y );
             }
         }
         else
@@ -249,6 +246,7 @@ public class TitleScreen : MonoBehaviour
 
             }
         }
+        UpdateBar(false);
     }
 }
 
