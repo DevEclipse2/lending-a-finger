@@ -2,6 +2,7 @@ using System.Drawing;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 using static Move;
 using Color = UnityEngine.Color;
@@ -9,7 +10,7 @@ using Color = UnityEngine.Color;
 public class TitleScreen : MonoBehaviour
 {
     static byte difficulty = 0;
-
+    byte maxdifficulty = 4;
     bool cancel;
     bool jumpLF;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -35,6 +36,44 @@ public class TitleScreen : MonoBehaviour
     private ChargeState currentState = ChargeState.Idle;
     public enum ChargeState { Idle, Growing, Holding, Receding }
     public float colorBlendSpeed = 10f;
+
+    bool doTutorial;
+        
+    //make players skip by typing out skip in morse 
+    // ... _._ .. .__.
+
+
+    //this is your key
+    //there are many like it
+    //but this is yours
+    //pick a key by tapping it twice, holding it twice
+
+    //many things can be done with one button
+    //you can tap it .. 
+    //hold it _
+    //yes keep holding
+    //goodboy
+    //holding it too much will cancel an input
+    // and holding it even longer brings up a multi function menu
+    //what's the matter, can't hold it?
+    //good boy
+    // bring up the multi function menu
+    //the multi function menu contains gameplay functions, as well as the transcoder
+    //to pause and exit , you must type it out in morse code
+    //a lookup sheet is provided for easier difficulties
+
+    //spamming is a very important thing
+    //it is the second best thing to skill
+    //press the key as fast as you can
+
+    //this is your finger
+    //there are at most 9 others
+    //apparently it has left you
+    //like my wife and kids
+
+    // select your main key for this session
+    // . _ .. _ _ _ ..
+
 
     void Start()
     {
@@ -66,6 +105,7 @@ public class TitleScreen : MonoBehaviour
     //acrobat - more spin multiplier!
     //twichy nerve - auto jump at the end of the charge , no cancelling 
     //flipmania keep up a flip streak (or you die)
+    //running key (key changes under circumstance)
 
     // Update is called once per frame
     void UpdateBar(bool didjump)
@@ -117,7 +157,8 @@ public class TitleScreen : MonoBehaviour
         }
     }
 
-
+    void AddDifficulty() { }
+    void ContinueGame() { }
     void Update()
     {
         if (heldTime > holdThresh)
@@ -153,6 +194,7 @@ public class TitleScreen : MonoBehaviour
         }
         else
         {
+            heldTime = 0;
             if (jumpLF)
             {
                 jumpLF = false;
@@ -163,6 +205,11 @@ public class TitleScreen : MonoBehaviour
                 if (heldTime < holdThresh)
                 {
                     //tap
+                    difficulty++;
+                    if (difficulty > maxdifficulty)
+                    {
+                        difficulty -= maxdifficulty;
+                    }
                 }
                 else
                 {
@@ -170,6 +217,34 @@ public class TitleScreen : MonoBehaviour
                     // if it is overheated do nothing
 
                     //if it is not yet charged also do nothing
+                    if (isOverheated || currentState == ChargeState.Growing)
+                    {
+                        Debug.Log("Not accepted");
+                    }
+                    if (currentState == ChargeState.Holding)
+                    {
+                        Debug.Log("Let's go!");
+                        switch (difficulty)
+                        {
+                            case 0:
+                                Debug.Log("Select Difficulty first!");
+                                break;
+
+                            case 1:
+                                Debug.Log("play easy");
+                                break;
+                            case 2:
+                                Debug.Log("play medium");
+                                break;
+                            case 3:
+                                Debug.Log("play hard");
+                                break;
+                            case 4:
+                                Debug.Log("play true");
+                                break;
+                            default: break;
+                        }
+                    }
                 }
 
             }
