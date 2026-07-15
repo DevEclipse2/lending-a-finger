@@ -402,8 +402,8 @@ MonoBehaviour:
   overheatColor: {r: 1, g: 0, b: 0, a: 1}
   targetColor: {r: 0, g: 0, b: 0, a: 0}
   currentColor: {r: 0, g: 0, b: 0, a: 0}
-  trail: {fileID: 1839377972}
   colorBlendSpeed: 10
+  trail: {fileID: 1839377972}
 --- !u!114 &29791348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8638,8 +8638,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.4, y: 1.4, z: 1.4}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 1.82, y: 1.36, z: 1.4}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 29791346}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -15457,8 +15457,8 @@ Transform:
   m_GameObject: {fileID: 2065963232}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 58.7522, y: 12.0479, z: 0}
-  m_LocalScale: {x: 29.738192, y: 17.333649, z: 1}
+  m_LocalPosition: {x: 61.1197, y: 12.0479, z: 0}
+  m_LocalScale: {x: 34.47251, y: 17.333649, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

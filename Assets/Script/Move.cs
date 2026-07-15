@@ -52,29 +52,24 @@ public class Move : MonoBehaviour
     Vector2 size;
     public Image barImage;
     public float overheatThreshold = 4.0f;
-
-
-
     public float drainSpeed = 3.0f;
-
     public Color normalColor = Color.green;
     public Color maxColor = new Color(1f, 0.5f, 0f); // Orange
     public Color overheatColor = Color.red;
-
     public Color targetColor;
     public Color currentColor;
     private float currentCharge = 0f;
     private bool isOverheated = false;
     private ChargeState currentState = ChargeState.Idle;
+    public enum ChargeState { Idle, Growing, Holding, Receding }
+    public float colorBlendSpeed = 10f;
 
-    
+
     [SerializeField]
     ParticleSystem trail;
     private ParticleSystem.EmissionModule speedEmissionModule;
-    public enum ChargeState { Idle, Growing, Holding, Receding }
 
    
-    public float colorBlendSpeed = 10f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
