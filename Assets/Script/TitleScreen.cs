@@ -109,6 +109,11 @@ public class TitleScreen : MonoBehaviour
     //running key (key changes under circumstance)
 
     // Update is called once per frame
+
+    //bloody mess : keep jumping or bleed out
+    //lava is rising
+    //action movie : slow down during spin
+    // pent up : max hold time is dramatically reduced
     void UpdateBar(bool didjump)
     {
         switch (currentState)
