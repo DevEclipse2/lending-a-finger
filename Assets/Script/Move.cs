@@ -47,6 +47,9 @@ public class Move : MonoBehaviour
     public bool scrunch = false;
     bool increaseAngular = false;
 
+    public GameObject TipArrow;
+    public GameObject TailArrow;
+
 
     public GameObject bar;
     Vector2 size;
@@ -68,8 +71,13 @@ public class Move : MonoBehaviour
     [SerializeField]
     ParticleSystem trail;
     private ParticleSystem.EmissionModule speedEmissionModule;
-
-   
+    [SerializeField]
+    SpriteRenderer renderer;
+    [SerializeField]
+    Sprite tap;
+    [SerializeField]
+    Sprite relax;
+    [SerializeField] Sprite scrunched;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -153,7 +161,18 @@ public class Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float currentSpeed = rigidbody.linearVelocity.magnitude;
+        if (Tip.position.y >= Tail.position.y)
+        { 
+            TipArrow.gameObject.SetActive(true);
+            TailArrow.gameObject.SetActive(false);
+        }
+        else
+        {
+            TipArrow.gameObject.SetActive(false);
+            TailArrow.gameObject.SetActive(true);
+        }
+
+            float currentSpeed = rigidbody.linearVelocity.magnitude;
 
         // 2. Calculate what percentage of our "max speed" we are currently traveling at
         float speedPercentage = Mathf.Clamp01(currentSpeed / 18);
@@ -163,7 +182,8 @@ public class Move : MonoBehaviour
         bool didjump = false;
         if (heldtime > holdThresh)
         {
-            
+            renderer.sprite = scrunched;
+
             scrunch = true;
             if (grounded)
             {
@@ -198,16 +218,14 @@ public class Move : MonoBehaviour
                 currentState = ChargeState.Growing;
                 jumpLF = true;
                 isOverheated = false;
+                renderer.sprite = tap;
+
             }
 
             heldtime += Time.deltaTime;
             if (!isOverheated)
             {
                 currentCharge = heldtime;
-            }
-            else
-            {
-                
             }
             if(currentCharge > overheatThreshold)
             {
@@ -220,6 +238,8 @@ public class Move : MonoBehaviour
         }
         else
         {
+
+            renderer.sprite = relax;
             if (jumpLF)
             {
                 jumpLF = false;
