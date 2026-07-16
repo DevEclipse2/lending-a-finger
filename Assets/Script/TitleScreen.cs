@@ -1,4 +1,5 @@
 using System.Drawing;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
@@ -39,7 +40,9 @@ public class TitleScreen : MonoBehaviour
     public float colorBlendSpeed = 10f;
 
     bool doTutorial;
-        
+    public TextMeshProUGUI bindingText;
+    public TextMeshProUGUI refText;
+
     //make players skip by typing out skip in morse 
     // ... _._ .. .__.
 
@@ -157,6 +160,7 @@ public class TitleScreen : MonoBehaviour
     void ContinueGame() { }
     void Update()
     {
+        bindingText.text = refText.text;
         
         if (heldTime > holdThresh)
         {

@@ -1,6 +1,7 @@
 using TMPro; // Used to update the UI text on the button
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class RebindUI : MonoBehaviour
 {
@@ -14,8 +15,6 @@ public class RebindUI : MonoBehaviour
     private InputActionRebindingExtensions.RebindingOperation rebindingOperation;
     bool rebinding;
 
-    bool jumpTrig;
-    bool filterTrig;
 
     [SerializeField]
     int presscount = 0;
@@ -31,6 +30,13 @@ public class RebindUI : MonoBehaviour
     Animator animator;
 
     public bool[] IsHoldInputTest; 
+
+    public Animator[] promptAnimators;
+    public Image[] promptImages;
+    public Color EmptyColor;
+    public Color FullColor;
+
+    bool filter = false;
     private void Start()
     {
         // Update the UI with the default or current binding on startup
@@ -50,18 +56,30 @@ public class RebindUI : MonoBehaviour
             pressed = false;
 
         }
-        jumpTrig = true;
+        Debug.Log("jump");
+
     }
     public void Filter(InputAction.CallbackContext context)
     {
+        if (context.started)
+        {
+            filter = true;
+        }
+        if (context.canceled)
+        {
+            filter = false;
+        }
         Debug.Log("filter");
-        filterTrig = true;
     }
     /// <summary>
     /// Call this from your UI Button's OnClick() event
     /// </summary>
     public void StartRebinding()
     {
+        foreach (Image image in promptImages)
+        {
+            image.color = EmptyColor;
+        }
         actionToRebind.action.Disable();
 
         bindingText.text = "?";
@@ -92,31 +110,56 @@ public class RebindUI : MonoBehaviour
     }
     void testFailed()
     {
-        filterTrig = false;
-        jumpTrig = false;
         presscount = 0;
+        rebindingOperation.Cancel();  // Stop listening for inputs
+        rebindingOperation.Dispose(); // Free the unmanaged memory (NativeArray)
+        rebindingOperation = null;
         StartRebinding();
+        foreach (Animator animate in promptAnimators)
+        {
+            animate.SetBool("Failed", true);
+
+        }
+        foreach (Image image in promptImages)
+        {
+            image.color = EmptyColor;
+        }
+        presscount = 0;
         Debug.Log("interrupted!");
     }
 
     void MinigameFailed()
     {
+        foreach (Image image in promptImages)
+        {
+            image.color = EmptyColor;
+        }
         presscount = 0;
-
-        StartRebinding();
         Debug.Log("lost minigame!");
     }
 
     void TestInputs(bool hold)
     {
+
+        if (presscount == IsHoldInputTest.Length) {
+            Debug.Log("MiniGame Won!");
+            animator.SetBool("Proceed", true); return; }
         
-        if (hold != IsHoldInputTest[presscount]) { 
-            
+        if (hold != IsHoldInputTest[presscount]) {
+            if (presscount == 0) {
+                promptAnimators[presscount].SetBool("Failed", true);
+                MinigameFailed();
+                return;
+            }
+            promptAnimators[presscount -1].SetBool("Failed", true);
             MinigameFailed();
-        
+            return;
         }
         presscount++;
-        if(presscount == IsHoldInputTest.Length)
+        promptImages[presscount -1].color = FullColor;
+        promptAnimators[presscount - 1].SetBool("Triggered", true);
+
+        if (presscount == IsHoldInputTest.Length)
         {
             Debug.Log("MiniGame Won!");
             animator.SetBool("Proceed", true);
@@ -150,7 +193,7 @@ public class RebindUI : MonoBehaviour
             }
            
         }
-        if(filterTrig && !jumpTrig && presscount < 5)
+        if(filter && !pressed && presscount < 5)
         {
             testFailed();
             
