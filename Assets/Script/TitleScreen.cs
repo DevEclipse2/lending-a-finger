@@ -166,6 +166,7 @@ public class TitleScreen : MonoBehaviour
     void Update()
     {
         bindingText.text = refText.text;
+
         
         if (heldTime > holdThresh)
         {
