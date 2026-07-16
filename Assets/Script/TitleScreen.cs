@@ -43,6 +43,11 @@ public class TitleScreen : MonoBehaviour
     public TextMeshProUGUI bindingText;
     public TextMeshProUGUI refText;
 
+
+    public bool HasBoundkey;
+
+    public GameObject mainscreen;
+    RebindUI bind;
     //make players skip by typing out skip in morse 
     // ... _._ .. .__.
 
@@ -81,6 +86,8 @@ public class TitleScreen : MonoBehaviour
 
     void Start()
     {
+        mainscreen.SetActive(false);
+        bindingText.text = "";
         size = bar.transform.localScale;
     }
     public void onJump(InputAction.CallbackContext context)
@@ -94,6 +101,12 @@ public class TitleScreen : MonoBehaviour
             input = false;
 
         }
+    }
+    bool finishedRebinding = false;
+
+    public void onTransition()
+    {
+        finishedRebinding = true;
     }
 
     //3 levels of difficulty
@@ -165,9 +178,14 @@ public class TitleScreen : MonoBehaviour
     void ContinueGame() { }
     void Update()
     {
-        bindingText.text = refText.text;
+        if (finishedRebinding) 
+        { 
+            bindingText.text = refText.text;
+            mainscreen.SetActive(true);
 
-        
+        }
+
+
         if (heldTime > holdThresh)
         {
 

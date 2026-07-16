@@ -1,6 +1,7 @@
 using TMPro; // Used to update the UI text on the button
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RebindUI : MonoBehaviour
@@ -37,6 +38,8 @@ public class RebindUI : MonoBehaviour
     public Color FullColor;
 
     bool filter = false;
+
+
     private void Start()
     {
         // Update the UI with the default or current binding on startup
@@ -45,6 +48,8 @@ public class RebindUI : MonoBehaviour
         rebinding = true;
         StartRebinding();
     }
+
+    
     public void onJump(InputAction.CallbackContext context)
     {
         if (context.started)
