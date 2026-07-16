@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static Move;
 using Color = UnityEngine.Color;
@@ -182,7 +183,7 @@ public class TitleScreen : MonoBehaviour
         { 
             bindingText.text = refText.text;
             mainscreen.SetActive(true);
-
+            SceneManager.LoadScene("main");
         }
 
 

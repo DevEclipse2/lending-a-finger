@@ -90,7 +90,7 @@ public class RebindUI : MonoBehaviour
         bindingText.text = "?";
 
         rebindingOperation = actionToRebind.action.PerformInteractiveRebinding()
-            .WithControlsExcluding("Mouse")
+            .WithControlsExcluding("Mouse/delta")
             .WithControlsExcluding("<Keyboard>/escape")
             .OnComplete(operation => FinishRebinding())
             .OnCancel(operation => FinishRebinding())

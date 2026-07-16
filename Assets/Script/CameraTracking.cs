@@ -13,7 +13,7 @@ public class CameraTracking : MonoBehaviour
     public bool snap = false;
     public float shiftAmount = 13.0f;
 
-    private float targetZoom;
+    private float targetZoom = 49;
     public float zoomSpeed = 0.05f;
     public float smoothZoomSpeed = 10f;
     public float minZoom = 44f;
