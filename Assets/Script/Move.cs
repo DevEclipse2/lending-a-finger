@@ -85,9 +85,13 @@ public class Move : MonoBehaviour
     bool InMenu;
 
     public GameObject menu;
+    public GameObject saveCheckpoint;
+    public GameObject checkPoint;
+    public GameObject loadOption;
     public Animator[] menuBulletPoints;
     public TextMeshProUGUI[] menuText;
-
+    int maxOptions = 4;
+    bool first;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -98,6 +102,16 @@ public class Move : MonoBehaviour
         currentColor = normalColor;
         speedEmissionModule = trail.emission;
         if (barImage != null) barImage.color = currentColor;
+        if(TitleScreen.difficulty != 1)
+        {
+            saveCheckpoint.SetActive(false);
+            maxOptions = 3;
+        }
+        if (TitleScreen.difficulty == 3)
+        {
+            loadOption.SetActive(false);
+            maxOptions = 2;
+        }
     }
     public void onJump(InputAction.CallbackContext context)
     {
@@ -114,6 +128,11 @@ public class Move : MonoBehaviour
     void ShowMenu()
     {
         Options = 0;
+        if (TitleScreen.difficulty == 1)
+        {
+            Options = 3;
+        }
+        menuText[Options].fontStyle = TMPro.FontStyles.Underline;
         InMenu = true;
         menu.SetActive(true);
         renderer.sprite = relax;
@@ -124,6 +143,7 @@ public class Move : MonoBehaviour
             rigidbody.angularVelocity /= multiplier;
             increaseAngular = false;
         }
+        first = false;
     }
     void HideMenu()
     {
@@ -259,7 +279,6 @@ public class Move : MonoBehaviour
                     renderer.sprite = tap;
 
                 }
-
             }
 
             heldtime += Time.deltaTime;
@@ -308,8 +327,11 @@ public class Move : MonoBehaviour
                             text.fontStyle = TMPro.FontStyles.Normal;
                         }
                         Options++;
-
-                        if(Options > 2)
+                        if (Options == 1 && TitleScreen.difficulty == 3)
+                        {
+                            Options = 2;
+                        }
+                        if (Options == maxOptions)
                         {
                             Options = 0;
                         }
@@ -341,13 +363,40 @@ public class Move : MonoBehaviour
                     else
                     {
                         menuBulletPoints[Options].SetBool("Triggered", true);
+                        
                         switch(Options)
                         {
                             case 0:
+                                if(!first)
+                                {
+                                    first = true;
+                                    break;
+                                }
+                                HideMenu();
                                 break;
                             case 1:
+                                if (TitleScreen.difficulty != 3)
+                                {
+                                    checkPoint.GetComponent<Checkpoints>().LoadCheckpoint();
+                                    HideMenu();
+                                }
                                 break;
                             case 2:
+                                //checkPoint.GetComponent<Checkpoints>().LoadCheckpoint();
+
+                                HideMenu();
+                                break;
+                            case 3:
+                                if(TitleScreen.difficulty == 1)
+                                {
+                                    if (!first)
+                                    {
+                                        first = true;
+                                        break;
+                                    }
+                                    checkPoint.GetComponent<Checkpoints>().SetCheckpoint(transform.position);
+                                    HideMenu();
+                                }
                                 break;
                         }
                     }

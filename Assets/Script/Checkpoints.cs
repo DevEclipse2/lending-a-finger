@@ -3,15 +3,15 @@ using UnityEngine;
 public class Checkpoints : MonoBehaviour
 {
 
-    Vector2 CheckpointPos;
+    Vector2 CheckpointPos = new Vector2(0,0);
     [SerializeField]
-    Transform player;
+    GameObject player;
     public int checkpointID;
 
 
     public void LoadCheckpoint()
     {
-        player.position = CheckpointPos;    
+        player.transform.position = CheckpointPos;    
     }
 
     public void SetCheckpoint(Vector2 newpos)

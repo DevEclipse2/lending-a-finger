@@ -13,7 +13,7 @@ using Color = UnityEngine.Color;
 public class TitleScreen : MonoBehaviour
 {
     public static byte difficulty = 0;
-    byte maxdifficulty = 4;
+    byte maxdifficulty = 3;
     bool cancel;
     bool jumpLF;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -63,7 +63,8 @@ public class TitleScreen : MonoBehaviour
     public Color EmptyColor;
     public Color FullColor;
 
-   
+    public bool canMod =true;
+    public TextMeshProUGUI hasSave;
 
     //make players skip by typing out skip in morse 
     // ... _._ .. .__.
@@ -133,8 +134,7 @@ public class TitleScreen : MonoBehaviour
     //3 levels of difficulty
     //easy - gets a single recovery point
     //medium - multiple area checkpoints, where you get teleported to the closest/ last area
-    //hard - get reset to points around 10 minutes ago
-    //true - morst brutal difficulty
+    //true - most brutal difficulty
 
     //stars
     //floor is lava
@@ -246,7 +246,7 @@ public class TitleScreen : MonoBehaviour
 
                 if (heldTime < holdThresh)
                 {
-                    if (finishedRebinding)
+                    if (finishedRebinding && canMod)
                     {
                         //tap
                         difficulty++;
@@ -262,11 +262,10 @@ public class TitleScreen : MonoBehaviour
                                 animatos.color = EmptyColor;
                             }
                         }
-                        else
-                        {
-                            promptImages[difficulty - 1].color = FullColor;
-                            promptAnimators[difficulty - 1].SetBool("Triggered", true);
-                        }
+                        
+                        promptImages[difficulty - 1].color = FullColor;
+                        promptAnimators[difficulty - 1].SetBool("Triggered", true);
+                        
                             
 
 
