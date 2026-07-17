@@ -61,7 +61,6 @@ public class RebindUI : MonoBehaviour
             pressed = false;
 
         }
-        Debug.Log("jump");
 
     }
     public void Filter(InputAction.CallbackContext context)
@@ -74,7 +73,6 @@ public class RebindUI : MonoBehaviour
         {
             filter = false;
         }
-        Debug.Log("filter");
     }
     /// <summary>
     /// Call this from your UI Button's OnClick() event

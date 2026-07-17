@@ -102,6 +102,10 @@ public class TitleScreen : MonoBehaviour
             input = false;
 
         }
+        if(finishedRebinding)
+        {
+            Debug.Log("Jump");
+        }
     }
     bool finishedRebinding = false;
 
@@ -183,7 +187,6 @@ public class TitleScreen : MonoBehaviour
         { 
             bindingText.text = refText.text;
             mainscreen.SetActive(true);
-            SceneManager.LoadScene("main");
         }
 
 
@@ -220,7 +223,7 @@ public class TitleScreen : MonoBehaviour
         }
         else
         {
-            heldTime = 0;
+            Debug.Log("Release");
             if (jumpLF)
             {
                 jumpLF = false;
@@ -241,15 +244,17 @@ public class TitleScreen : MonoBehaviour
                 {
                     //hold
                     // if it is overheated do nothing
-
+                    Debug.Log("ReleaseHold");
                     //if it is not yet charged also do nothing
                     if (isOverheated || currentState == ChargeState.Growing)
                     {
                         Debug.Log("Not accepted");
                     }
-                    if (currentState == ChargeState.Holding)
+                    Debug.Log(currentState);
+                    if (finishedRebinding&&currentState == ChargeState.Holding)
                     {
                         Debug.Log("Let's go!");
+                        SceneManager.LoadScene("main");
                         switch (difficulty)
                         {
                             case 0:
@@ -272,6 +277,9 @@ public class TitleScreen : MonoBehaviour
                         }
                     }
                 }
+
+                heldTime = 0;
+                currentState = ChargeState.Idle;
 
             }
         }
