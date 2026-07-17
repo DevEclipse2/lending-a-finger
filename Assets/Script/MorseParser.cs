@@ -67,7 +67,7 @@ public class MorseParser : MonoBehaviour
     float wordCountdownMax = 0.3f;
 
     string currentSelectedChar = "";
-
+    public bool Enabled;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -100,7 +100,7 @@ public class MorseParser : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(!Enabled) return;
         if (pressed)
         {
             heldTime += Time.deltaTime;

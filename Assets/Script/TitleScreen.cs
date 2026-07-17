@@ -25,6 +25,8 @@ public class TitleScreen : MonoBehaviour
     [SerializeField]
     float cancelThresh;
     [SerializeField]
+    float menuThresh;
+    [SerializeField]
     float maxHold;
     public GameObject bar;
     Vector2 size;
@@ -51,10 +53,17 @@ public class TitleScreen : MonoBehaviour
     public GameObject mainscreen;
     RebindUI bind;
 
+    public GameObject Menu;
+
+
+
+
     public Animator[] promptAnimators;
     public Image[] promptImages;
     public Color EmptyColor;
     public Color FullColor;
+
+   
 
     //make players skip by typing out skip in morse 
     // ... _._ .. .__.
@@ -186,8 +195,9 @@ public class TitleScreen : MonoBehaviour
         }
     }
 
-    void AddDifficulty() { }
     void ContinueGame() { }
+
+    
     void Update()
     {
         if (finishedRebinding) 
@@ -197,10 +207,7 @@ public class TitleScreen : MonoBehaviour
         }
 
 
-        if (heldTime > holdThresh)
-        {
-
-        }
+        
         if (input)
         {
             if (!jumpLF)
@@ -215,7 +222,7 @@ public class TitleScreen : MonoBehaviour
             {
                 currentCharge = heldTime;
             }
-            else
+            if(heldTime > menuThresh)
             {
 
             }

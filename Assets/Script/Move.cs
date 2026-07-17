@@ -1,8 +1,11 @@
 using System.Xml;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
+using static System.Net.Mime.MediaTypeNames;
 
 public class Move : MonoBehaviour
 {
@@ -21,7 +24,8 @@ public class Move : MonoBehaviour
 
     [SerializeField]
     private float holdThresh = 0.15f;
-
+    [SerializeField]
+    private float pauseThresh = 6;
     Rigidbody2D rigidbody;
     CapsuleCollider2D collider;
     [SerializeField]
@@ -53,7 +57,7 @@ public class Move : MonoBehaviour
 
     public GameObject bar;
     Vector2 size;
-    public Image barImage;
+    public UnityEngine.UI.Image barImage;
     public float overheatThreshold = 4.0f;
     public float drainSpeed = 3.0f;
     public Color normalColor = Color.green;
@@ -78,6 +82,11 @@ public class Move : MonoBehaviour
     [SerializeField]
     Sprite relax;
     [SerializeField] Sprite scrunched;
+    bool InMenu;
+
+    public GameObject menu;
+    public Animator[] menuBulletPoints;
+    public TextMeshProUGUI[] menuText;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -102,7 +111,25 @@ public class Move : MonoBehaviour
 
         }
     }
-
+    void ShowMenu()
+    {
+        Options = 0;
+        InMenu = true;
+        menu.SetActive(true);
+        renderer.sprite = relax;
+        collider.offset = flatOffset;
+        collider.size = flatSize;
+        if (!grounded && increaseAngular)
+        {
+            rigidbody.angularVelocity /= multiplier;
+            increaseAngular = false;
+        }
+    }
+    void HideMenu()
+    {
+        InMenu = false;
+        menu.SetActive(false);
+    }
     void UpdateBar(bool didjump)
     {
         switch (currentState)
@@ -158,9 +185,15 @@ public class Move : MonoBehaviour
         }
     }
 
+    byte Options= 0 ;
+
     // Update is called once per frame
     void Update()
     {
+        if (heldtime > pauseThresh)
+        {
+            ShowMenu();
+        }
         if (Tip.position.y >= Tail.position.y)
         { 
             TipArrow.gameObject.SetActive(true);
@@ -182,33 +215,36 @@ public class Move : MonoBehaviour
         bool didjump = false;
         if (heldtime > holdThresh)
         {
-            renderer.sprite = scrunched;
-
             scrunch = true;
             if (grounded)
             {
                 rigidbody.angularVelocity = 0;
             }
         }
-        if (scrunch)
+        if (!InMenu)
         {
-            collider.size = ScrunchSize;
-            collider.offset = ScrunchOffset;
-            if (!grounded && !increaseAngular) {
-                rigidbody.angularVelocity *= multiplier;
-                increaseAngular = true;
-
-            }
-        }
-        else
-        {
-            collider.offset = flatOffset;
-            collider.size = flatSize;
-            if (!grounded && increaseAngular)
+            if (scrunch)
             {
-                rigidbody.angularVelocity /= multiplier;
-                increaseAngular = false;
+                renderer.sprite = scrunched;
+                collider.size = ScrunchSize;
+                collider.offset = ScrunchOffset;
+                if (!grounded && !increaseAngular)
+                {
+                    rigidbody.angularVelocity *= multiplier;
+                    increaseAngular = true;
 
+                }
+            }
+            else
+            {
+                renderer.sprite = relax;
+                collider.offset = flatOffset;
+                collider.size = flatSize;
+                if (!grounded && increaseAngular)
+                {
+                    rigidbody.angularVelocity /= multiplier;
+                    increaseAngular = false;
+                }
             }
         }
         if (jump)
@@ -218,7 +254,11 @@ public class Move : MonoBehaviour
                 currentState = ChargeState.Growing;
                 jumpLF = true;
                 isOverheated = false;
-                renderer.sprite = tap;
+                if(!InMenu)
+                {
+                    renderer.sprite = tap;
+
+                }
 
             }
 
@@ -239,7 +279,6 @@ public class Move : MonoBehaviour
         else
         {
 
-            renderer.sprite = relax;
             if (jumpLF)
             {
                 jumpLF = false;
@@ -251,40 +290,66 @@ public class Move : MonoBehaviour
                 if (heldtime < holdThresh)
                 {
                     Debug.Log("tap");
-                    if (grounded)
+                    if (!InMenu)
                     {
-                        rigidbody.linearVelocity = Vector2.zero;
-                        rigidbody.angularVelocity += 30.0f;
-                        RaycastHit2D ray = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), Vector2.left, 3.0f);
-                        //if(ray.collider.gameObject.CompareTag("Ground"))
-                        //{
-                        //    transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z + 20));
-                        //}
-                        //else
-                        //{
-                        //    transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z - 20));
-                        //}
-                        transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z + 20));
+                        if (grounded)
+                        {
+                            rigidbody.linearVelocity = Vector2.zero;
+                            rigidbody.angularVelocity += 30.0f;
+                            RaycastHit2D ray = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), Vector2.left, 3.0f);
+                            transform.rotation = Quaternion.Euler(new Vector3(0, 0, transform.rotation.eulerAngles.z + 20));
+
+                        }
+                    }
+                    else
+                    {
+                        foreach(TextMeshProUGUI text in menuText)
+                        {
+                            text.fontStyle = TMPro.FontStyles.Normal;
+                        }
+                        Options++;
+
+                        if(Options > 2)
+                        {
+                            Options = 0;
+                        }
+                        menuText[Options].fontStyle = TMPro.FontStyles.Underline;
 
                     }
                 }
                 else
                 {
-                    if (grounded)
+                    if (!InMenu)
                     {
-                        Debug.Log("Jump");
-                        if(Tip.position.y >= Tail.position.y)
+                        if (grounded)
                         {
-                            rigidbody.AddForce( transform.up * jumpForce * Mathf.Clamp(currentCharge , 0.0f, maxHold), ForceMode2D.Impulse);
-                        }
-                        else
-                        {
-                            rigidbody.AddForce(-transform.up * jumpForce * Mathf.Clamp(currentCharge, 0.0f, maxHold), ForceMode2D.Impulse);
-                        }
+                            Debug.Log("Jump");
+                            if (Tip.position.y >= Tail.position.y)
+                            {
+                                rigidbody.AddForce(transform.up * jumpForce * Mathf.Clamp(currentCharge, 0.0f, maxHold), ForceMode2D.Impulse);
+                            }
+                            else
+                            {
+                                rigidbody.AddForce(-transform.up * jumpForce * Mathf.Clamp(currentCharge, 0.0f, maxHold), ForceMode2D.Impulse);
+                            }
 
                             rigidbody.angularVelocity = rotationForce * Mathf.Clamp(currentCharge, 0.0f, maxHold);
-                        didjump = true;
+                            didjump = true;
 
+                        }
+                    }
+                    else
+                    {
+                        menuBulletPoints[Options].SetBool("Triggered", true);
+                        switch(Options)
+                        {
+                            case 0:
+                                break;
+                            case 1:
+                                break;
+                            case 2:
+                                break;
+                        }
                     }
                     Debug.Log("release");
 
