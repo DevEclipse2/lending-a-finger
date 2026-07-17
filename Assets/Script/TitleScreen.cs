@@ -1,5 +1,6 @@
 using System.Drawing;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
@@ -11,7 +12,7 @@ using Color = UnityEngine.Color;
 
 public class TitleScreen : MonoBehaviour
 {
-    static byte difficulty = 0;
+    public static byte difficulty = 0;
     byte maxdifficulty = 4;
     bool cancel;
     bool jumpLF;
@@ -49,6 +50,12 @@ public class TitleScreen : MonoBehaviour
 
     public GameObject mainscreen;
     RebindUI bind;
+
+    public Animator[] promptAnimators;
+    public Image[] promptImages;
+    public Color EmptyColor;
+    public Color FullColor;
+
     //make players skip by typing out skip in morse 
     // ... _._ .. .__.
 
@@ -223,7 +230,6 @@ public class TitleScreen : MonoBehaviour
         }
         else
         {
-            Debug.Log("Release");
             if (jumpLF)
             {
                 jumpLF = false;
@@ -233,12 +239,33 @@ public class TitleScreen : MonoBehaviour
 
                 if (heldTime < holdThresh)
                 {
-                    //tap
-                    difficulty++;
-                    if (difficulty > maxdifficulty)
+                    if (finishedRebinding)
                     {
-                        difficulty -= maxdifficulty;
+                        //tap
+                        difficulty++;
+                        if (difficulty > maxdifficulty)
+                        {
+                            difficulty -= maxdifficulty;
+                            foreach (Animator animatos in promptAnimators)
+                            {
+                                animatos.SetBool("Failed", true);
+                            }
+                            foreach (Image animatos in promptImages)
+                            {
+                                animatos.color = EmptyColor;
+                            }
+                        }
+                        else
+                        {
+                            promptImages[difficulty - 1].color = FullColor;
+                            promptAnimators[difficulty - 1].SetBool("Triggered", true);
+                        }
+                            
+
+
+                        
                     }
+
                 }
                 else
                 {
@@ -260,7 +287,6 @@ public class TitleScreen : MonoBehaviour
                             case 0:
                                 Debug.Log("Select Difficulty first!");
                                 break;
-
                             case 1:
                                 Debug.Log("play easy");
                                 break;
