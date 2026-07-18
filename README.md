@@ -1,5 +1,16 @@
 so what is this?
 
+
+updates : added main menu and difficulty
+3 levels: easy with custom set checkpoints
+medium with automatic checkpoints
+hard with no checkpoints
+
+added game saving (not accessible as of the web build but hey it exists)
+
+
+
+
 lending a finger ( unfinalised name )
 is a game about controlling a single finger across obstacles
 
